@@ -4,13 +4,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.aliyun.app</groupId>
-    <artifactId>image-factory-openapi-service</artifactId>
+    <groupId>com.wwy.app</groupId>
+    <artifactId>image-service</artifactId>
     <packaging>war</packaging>
     <version>1.0</version>
-    <name>image-factory-openapi-service</name>
+    <name>image-service</name>
     <build>
-        <finalName>image-factory-openapi-service</finalName>
+        <finalName>image-service</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
