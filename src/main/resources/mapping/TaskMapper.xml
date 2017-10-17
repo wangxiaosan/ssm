@@ -2,96 +2,127 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.aliyun.app.dao.TaskDao">
-    <resultMap id="MakeResponseDto" type="com.aliyun.app.ws.dto.response.MakeResponseDto">
-        <result property="taskId" column="taskId"/>
-        <result property="taskType" column="taskType"/>
+
+    <resultMap type="com.aliyun.app.model.dto.CheckResultDto" id="checkResult">
+        <result column="item_name" property="itemName"/>
+        <result column="item_desc" property="itemDesc"/>
+        <result column="item_label" property="itemLabel"/>
+        <result column="ok" property="ok"/>
+        <result column="info" property="info"/>
+        <result column="is_fix_enabled" property="fixEnabled"/>
+        <result column="is_fix_ok" property="fixOk"/>
+        <result column="fix_info" property="fixInfo"/>
     </resultMap>
 
-    <insert id="makeTask" parameterType="com.aliyun.app.dao.entity.TasksDO" useGeneratedKeys="true"
-            keyProperty="id">
-        insert into tasks(taskType,regionId,imageId,architecture,osType,language,platform,patch,systemDiskFormat,
-        systemDiskSize,ossBucket,sourceSystemOSSObject,userDefinedScriptOssObject,scriptRelatedFileOssObject,
-        appKey,appSecret,sign,requestId,clientToken,version,sourceSystemOssChecksum,sourceImageOssBucket,
-        sourceImageOssObject,sourceImageOssChecksum,taskId,resultIamgeOssBucket,resultIamgeOssObject,startTime,
-        endTime,lastUpdateTime,currentStepId,totalSteps,remainingSteps)
-        VALUES (#{taskType},#{regionId},#{imageId},#{architecture},#{osType},#{language},#{platform},#{patch},
-        #{systemDiskFormat},#{systemDiskSize},#{ossBucket},#{sourceSystemOssObject},#{userDefinedScriptOssObject},
-        #{scriptRelatedFileOssObject},#{appKey},#{appSecret},#{sign},#{requestId},#{clientToken},#{version},
-        #{sourceSystemOssChecksum},#{sourceImageOssBucket},#{sourceImageOssObject},#{sourceImageOssChecksum},
-        #{taskId},#{resultIamgeOssBucket},#{resultIamgeOssObject},#{startTime},#{endTime},#{lastUpdateTime},#{currentStepId},
-        #{totalSteps},#{remainingSteps});
-    </insert>
+    <resultMap type="com.aliyun.app.model.dto.TaskDto" id="queryTaskDto">
+        <result column="region_id" property="regionId"/>
+        <result column="task_id" property="taskId"/>
+        <result column="task_type" property="taskType"/>
+        <result column="status" property="taskStatus"/>
+        <result column="progress" property="progress"/>
+        <result column="expected_time" property="expectedTime"/>
+        <result column="is_support_cancel" property="supportCancel"/>
+        <result column="gmt_create" property="creationTime"/>
+        <result column="finished_time" property="finishedTime"/>
+        <collection property="itemResults" ofType="com.aliyun.app.model.dto.CheckResultDto"
+                    resultMap="checkResult"/>
+    </resultMap>
 
-    <select id="findTask" parameterType="long"
-            resultType="com.aliyun.app.ws.dto.response.MakeResponseDto">
-        select taskId,taskType,requestId from tasks where id = #{id};
-    </select>
-
-    <insert id="checkTask" parameterType="com.aliyun.app.dao.entity.TasksDO" useGeneratedKeys="true"
-            keyProperty="id">
-        insert into tasks(regionId,imageId,architecture,osType,platform,patch,autoRepair,appKey,appSecret,sign,
-        requestId,clientToken,version,sourceSystemOssChecksum,sourceImageOssBucket,
-        sourceImageOssObject,sourceImageOssChecksum,taskId,resultIamgeOssBucket,resultIamgeOssObject,startTime,
-        endTime,lastUpdateTime,currentStepId,totalSteps,remainingSteps,ossBucket,sourceSystemOssObject,userDefinedScriptOssObject,scriptRelatedFileOssObject)
-        VALUES (#{regionId},#{imageId},#{architecture},#{osType},#{platform},#{patch},#{autoRepair},
+    <insert id="makeTask" parameterType="com.aliyun.app.model.entity.TasksDO" useGeneratedKeys="true" keyProperty="id">
+        insert into tasks(task_type,region_id,image_id,
+        <if test=" architecture != null ">
+            architecture,
+        </if>
+        <if test=" osType != null ">
+            os_type,
+        </if>
+        language,platform,is_install_windows_update,
+        <if test=" systemDiskFormat != null">
+            system_disk_format,
+        </if>
+        system_disk_size,oss_bucket,
+        storage_url,user_defined_script_url,script_Related_file_url,
+        app_key,app_secret,sign,request_id,client_token,version,storage_checksum,task_id,result_image_oss_bucket,result_image_oss_object,start_time,
+        finished_time,storage_type,is_kvm_enabled,is_xen_enabled,gmt_create,gmt_modify
+        <if test=" status != null">
+            ,status
+        </if>
+        )
+        VALUES (#{taskType},#{regionId},#{imageId},
+        <if test=" architecture != null ">
+            #{architecture},
+        </if>
+        <if test=" osType != null ">
+            #{osType},
+        </if>
+        #{language},#{platform},#{isInstallWindowsUpdate},
+        <if test=" systemDiskFormat != null">
+            #{systemDiskFormat},
+        </if>
+        #{systemDiskSize},#{ossBucket},
+        #{storageUrl},#{userDefinedScriptUrl},#{scriptRelatedFileUrl},
         #{appKey},#{appSecret},#{sign},#{requestId},#{clientToken},#{version},
-        #{sourceSystemOssChecksum},#{sourceImageOssBucket},#{sourceImageOssObject},#{sourceImageOssChecksum},
-        #{taskId},#{resultIamgeOssBucket},#{resultIamgeOssObject},#{startTime},#{endTime},#{lastUpdateTime},#{currentStepId},
-        #{totalSteps},#{remainingSteps},#{ossBucket},#{sourceSystemOssObject},#{userDefinedScriptOssObject},#{scriptRelatedFileOssObject});
+        #{storageChecksum},#{taskId},#{resultImageOssBucket},#{resultImageOssObject},#{startTime},#{finishedTime},
+        #{storageType},#{isKvmEnabled},#{isXenEnabled},#{gmtCreate},#{gmtModify}
+        <if test=" status != null">
+            ,#{status}
+        </if>
+        );
     </insert>
 
-    <select id="findCheckTask" parameterType="long"
-            resultType="com.aliyun.app.ws.dto.response.CheckTaskResponseDto">
-        select taskId,taskType,requestId from tasks where id = #{id};
-    </select>
-
-    <select id="queryTask" parameterType="com.aliyun.app.ws.dto.QueryTaskDto"
-            resultType="com.aliyun.app.ws.dto.TaskDto">
-        select regionId,taskId,taskType,status as taskStatus,createTime as creationTime from tasks
-        where regionId = #{regionId} and taskId in
+    <select id="queryTask" parameterType="com.aliyun.app.model.dto.QueryTaskDto" resultMap="queryTaskDto">
+        select t.region_id,t.task_id,t.task_type,t.status,t.gmt_create,
+        t.progress,t.expected_time,t.is_support_cancel,t.finished_time,
+        cr.item_name,cr.item_desc,cr.item_label,cr.ok,cr.info,cr.is_fix_enabled,cr.is_fix_ok,cr.fix_info from tasks t left
+        join check_results cr on t.task_id = cr.task_id
+        where t.region_id = #{regionId} and t.task_id in
         <foreach collection="taskIds" index="index" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
         <if test=" startTime != null ">
-            and startTime = #{startTime}
+            and start_time &gt;= #{startTime}
         </if>
         <if test=" endTime != null ">
-            and endTime = #{endTime}
+            and finished_time &lt;= #{endTime}
         </if>
-        <if test=" taskStatus != null ">
-            and taskStatus = #{taskStatus}
+        <if test=" taskStatus != null and taskStatus != '' ">
+            and status = #{taskStatus}
         </if>
-        limit #{offset},#{pageSize}
+        order by t.gmt_create DESC limit #{offset},#{pageSize}
     </select>
 
-    <select id="countTask" parameterType="com.aliyun.app.ws.dto.QueryTaskDto" resultType="Integer">
-        select count(*) from tasks where regionId = #{regionId} and taskId in
+    <select id="countTask" parameterType="com.aliyun.app.model.dto.QueryTaskDto" resultType="Integer">
+        select count(*) from tasks where region_id = #{regionId} and task_id in
         <foreach collection="taskIds" index="index" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
         <if test=" startTime != null ">
-            and startTime = #{startTime}
+            and start_time &gt;= #{startTime}
         </if>
         <if test=" endTime != null ">
-            and endTime = #{endTime}
+            and finished_time &lt;= #{endTime}
         </if>
         <if test=" taskStatus != null ">
-            and taskStatus = #{taskStatus}
+            and status = #{taskStatus}
         </if>
     </select>
 
-    <select id="countTaskForCancel" parameterType="com.aliyun.app.ws.dto.CancelTaskDto" resultType="Integer">
-        select count(*) from tasks where regionId = #{regionId} and taskId in
+    <select id="countTaskForCancel" parameterType="com.aliyun.app.model.dto.CancelTaskDto" resultType="Integer">
+        select count(*) from tasks where region_id = #{regionId} and task_id in
         <foreach collection="taskIds" index="index" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
     </select>
 
-    <update id="cancelTask" parameterType="com.aliyun.app.ws.dto.CancelTaskDto" >
-        update tasks set status = 'Deleted' where regionId = #{regionId} and taskId in
+    <update id="cancelTask" parameterType="com.aliyun.app.model.dto.CancelTaskDto">
+        update tasks set status = 'Deleted' where region_id = #{regionId} and task_id in
         <foreach collection="taskIds" index="index" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
     </update>
+
+    <delete id="deleteTask" parameterType="long">
+        delete from tasks where id = #{id}
+    </delete>
 
 </mapper>
