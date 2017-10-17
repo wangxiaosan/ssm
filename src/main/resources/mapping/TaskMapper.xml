@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.aliyun.app.dao.TaskDao">
+<mapper namespace="com.wwy.app.model.entity.TasksDO">
 
-    <resultMap type="com.aliyun.app.model.dto.CheckResultDto" id="checkResult">
+    <resultMap type="com.wwy.app.model.dto.CheckResultDto" id="checkResult">
         <result column="item_name" property="itemName"/>
         <result column="item_desc" property="itemDesc"/>
         <result column="item_label" property="itemLabel"/>
@@ -14,7 +14,7 @@
         <result column="fix_info" property="fixInfo"/>
     </resultMap>
 
-    <resultMap type="com.aliyun.app.model.dto.TaskDto" id="queryTaskDto">
+    <resultMap type="com.wwy.app.model.dto.TaskDto" id="queryTaskDto">
         <result column="region_id" property="regionId"/>
         <result column="task_id" property="taskId"/>
         <result column="task_type" property="taskType"/>
@@ -24,11 +24,11 @@
         <result column="is_support_cancel" property="supportCancel"/>
         <result column="gmt_create" property="creationTime"/>
         <result column="finished_time" property="finishedTime"/>
-        <collection property="itemResults" ofType="com.aliyun.app.model.dto.CheckResultDto"
+        <collection property="itemResults" ofType="com.wwy.app.model.dto.CheckResultDto"
                     resultMap="checkResult"/>
     </resultMap>
 
-    <insert id="makeTask" parameterType="com.aliyun.app.model.entity.TasksDO" useGeneratedKeys="true" keyProperty="id">
+    <insert id="makeTask" parameterType="com.wwy.app.model.entity.TasksDO" useGeneratedKeys="true" keyProperty="id">
         insert into tasks(task_type,region_id,image_id,
         <if test=" architecture != null ">
             architecture,
@@ -70,7 +70,7 @@
         );
     </insert>
 
-    <select id="queryTask" parameterType="com.aliyun.app.model.dto.QueryTaskDto" resultMap="queryTaskDto">
+    <select id="queryTask" parameterType="com.wwy.app.model.dto.QueryTaskDto" resultMap="queryTaskDto">
         select t.region_id,t.task_id,t.task_type,t.status,t.gmt_create,
         t.progress,t.expected_time,t.is_support_cancel,t.finished_time,
         cr.item_name,cr.item_desc,cr.item_label,cr.ok,cr.info,cr.is_fix_enabled,cr.is_fix_ok,cr.fix_info from tasks t left
@@ -91,7 +91,7 @@
         order by t.gmt_create DESC limit #{offset},#{pageSize}
     </select>
 
-    <select id="countTask" parameterType="com.aliyun.app.model.dto.QueryTaskDto" resultType="Integer">
+    <select id="countTask" parameterType="com.wwy.app.model.dto.QueryTaskDto" resultType="Integer">
         select count(*) from tasks where region_id = #{regionId} and task_id in
         <foreach collection="taskIds" index="index" item="item" open="(" separator="," close=")">
             #{item}
@@ -107,14 +107,14 @@
         </if>
     </select>
 
-    <select id="countTaskForCancel" parameterType="com.aliyun.app.model.dto.CancelTaskDto" resultType="Integer">
+    <select id="countTaskForCancel" parameterType="com.wwy.app.model.dto.CancelTaskDto" resultType="Integer">
         select count(*) from tasks where region_id = #{regionId} and task_id in
         <foreach collection="taskIds" index="index" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
     </select>
 
-    <update id="cancelTask" parameterType="com.aliyun.app.model.dto.CancelTaskDto">
+    <update id="cancelTask" parameterType="com.wwy.app.model.dto.CancelTaskDto">
         update tasks set status = 'Deleted' where region_id = #{regionId} and task_id in
         <foreach collection="taskIds" index="index" item="item" open="(" separator="," close=")">
             #{item}
